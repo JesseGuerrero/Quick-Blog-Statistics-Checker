@@ -24,15 +24,17 @@ def getBlogStatistics(siteMapURLs: list, siteIdentifier: str, contentClass: str)
             if href and siteIdentifier in href:
                 urls.append(href)
 
-    number_of_words = 0
+    number_of_words, maxWords, minWords = 0, 0, 9999999999
     for i, url in enumerate(urls):
         print("", end="\r")
         print("Loading " + siteIdentifier + " blog post #", str(i), end="")
         title, text = get_text(url, contentClass)
         number_of_words += len(text.split())
+        maxWords, minWords = max(maxWords, number_of_words), min(minWords, number_of_words)
 
     print("\n---" + siteIdentifier + "---")
     print("Total posts: " + str(len(urls)))
+    print("Min words: " + str(minWords) + ", Max words: " + str(maxWords))
     print("Average post length: " + str(number_of_words // len(urls)))
     print("Total post words: " + str(number_of_words))
     print("")
