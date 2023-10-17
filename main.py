@@ -23,26 +23,40 @@ def getBlogStatistics(siteMapURLs: list, siteIdentifier: str, contentClass: str)
             href = aTag.text
             if href and siteIdentifier in href:
                 urls.append(href)
+    ranges = [0, 500, 1000, 2000, 3000, 5000, 7000, 10000, 50000]
+    countRanges = [0]*len(ranges)
 
-    totalWords, number_of_words, maxWords, minWords = 0, 0, 0, 9999999999
+    totalWords, number_of_words, maxWords, minWords, maxUrl, minURL = 0, 0, 0, 9999999999, "", ""
     for i, url in enumerate(urls):
         print("", end="\r")
         print("Loading " + siteIdentifier + " blog post #", str(i), end="")
         title, text = get_text(url, contentClass)
         number_of_words = len(text.split())
         totalWords += number_of_words
-        maxWords, minWords = max(maxWords, number_of_words), min(minWords, number_of_words)
+        if maxWords < number_of_words:
+            maxWords = number_of_words
+            maxUrl = url
+        if minWords > number_of_words:
+            minWords = number_of_words
+            minURL = url
+        for i, upper in enumerate(ranges):
+            if number_of_words < upper:
+                countRanges[i] = countRanges[i] + 1
+                break
 
     print("\n---" + siteIdentifier + "---")
     print("Total posts: " + str(len(urls)))
+    for i in range(1, len(ranges)):
+        print(str(ranges[i-1]) + "-" + str(ranges[i]) + ": " + str(countRanges[i]))
     print("Min words: " + str(minWords) + ", Max words: " + str(maxWords))
+    print("Min Post: " + minURL + ", Max Post: " + maxUrl)
     print("Average post length: " + str(totalWords // len(urls)))
     print("Total post words: " + str(totalWords))
     print("")
 
 
-getBlogStatistics(["https://www.thesideblogger.com/post-sitemap.xml"], "thesideblogger", 'elementor-widget-theme-post-content')
 getBlogStatistics(["https://jessenerio.com/post-sitemap.xml"], "jessenerio", 'elementor-widget-theme-post-content')
+getBlogStatistics(["https://www.thesideblogger.com/post-sitemap.xml"], "thesideblogger", 'elementor-widget-theme-post-content')
 getBlogStatistics(["https://fatstacksblog.com/post-sitemap1.xml", "https://fatstacksblog.com/post-sitemap2.xml",
                    "https://fatstacksblog.com/post-sitemap3.xml", "https://fatstacksblog.com/post-sitemap4.xml"],
                   "fatstacksblog", 'entry-content')
